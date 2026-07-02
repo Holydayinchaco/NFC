@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lemon · Tarjeta → NFC → Tarjetas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --lime:#C7FB4F;--lime-deep:#B6ED3B;--ink:#0B0B0B;--bg:#EFEFEF;--card:#FFFFFF;
+  --muted:#8C8C8C;--muted-2:#B4B4B4;--line:#EDEDED;
+  --orange-bg:#FCE7CE;--orange-tx:#D98324;--green-bg:#D9F6DE;--green-tx:#1EA34D;
+  --dur:380ms;--dur-open:360ms;--dur-morph:460ms;--dur-fade:220ms;
+  --ease:cubic-bezier(.22,.61,.36,1);--ease-morph:cubic-bezier(.5,.05,.2,1);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:radial-gradient(120% 90% at 50% -10%,#f7f7f5 0%,#e7e7e4 60%,#dedede 100%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:14px;padding:12px;color:var(--ink)}
+.scaler{transform-origin:top center}
+.phone{position:relative;width:384px;height:832px;background:var(--bg);border-radius:44px;overflow:hidden;
+  box-shadow:0 2px 4px rgba(0,0,0,.08),0 30px 70px -20px rgba(0,0,0,.35),0 0 0 10px #111,0 0 0 12px #2a2a2a}
+.slowmo .phone{--dur:1300ms;--dur-open:1200ms;--dur-morph:1500ms;--dur-fade:600ms}
+
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;overflow:hidden;background:var(--bg)}
+.statusbar{height:44px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 22px 0 26px;font-size:14px;font-weight:600}
+.statusbar .sb-r{display:flex;align-items:center;gap:6px}
+.scroll{flex:1;overflow:hidden;padding:0 16px}
+
+/* HOME */
+.home-head{display:flex;align-items:center;justify-content:space-between;padding:6px 16px 14px}
+.userpill{display:flex;align-items:center;gap:9px;background:#fff;border-radius:999px;padding:7px 16px 7px 8px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.avatar{width:30px;height:30px;border-radius:50%;background:var(--lime);display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px}
+.userpill b{font-size:16px;font-weight:700}
+.head-icons{display:flex;align-items:center;gap:16px}
+.head-icons .ic{width:24px;height:24px;color:#111}
+.balanceCard{background:#fff;border-radius:26px;padding:16px 18px 22px;position:relative;z-index:2;box-shadow:0 6px 20px -12px rgba(0,0,0,.15)}
+.tabs{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.tab{font-size:15px;font-weight:700;color:#111;padding:4px 2px}
+.tab.right{margin-left:auto;background:var(--lime);color:#0b0b0b;padding:8px 20px;border-radius:14px 14px 4px 14px;transform:translateY(-8px)}
+.balLabel{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:15px;font-weight:600;margin-bottom:2px}
+.balLabel svg{width:18px;height:18px;color:var(--muted)}
+.balance{font-size:44px;font-weight:800;letter-spacing:-1.5px;line-height:1.05;margin:2px 0 14px}
+.grow{display:inline-flex;align-items:center;gap:8px;background:var(--lime);color:#0b0b0b;font-weight:700;font-size:14px;padding:6px 12px;border-radius:999px}
+.grow svg{width:14px;height:14px}
+.actions{display:flex;justify-content:space-around;margin-top:26px}
+.action{display:flex;flex-direction:column;align-items:center;gap:9px}
+.action .circle{width:60px;height:60px;border-radius:50%;background:#0b0b0b;display:flex;align-items:center;justify-content:center}
+.action .circle svg{width:24px;height:24px;color:var(--lime)}
+.action span{font-size:14px;font-weight:600}
+.virtualCard{margin:-26px 6px 0;padding:36px 20px 18px;background:var(--lime);border-radius:24px;display:flex;align-items:flex-end;justify-content:space-between;position:relative;z-index:1;cursor:pointer;transition:transform .18s var(--ease),filter .18s var(--ease)}
+.virtualCard:active{transform:scale(.985);filter:brightness(.97)}
+.virtualCard .vc-t{font-size:16px;font-weight:700}
+.virtualCard .vc-n{font-size:14px;font-weight:600;letter-spacing:1px;margin-top:3px;color:#1a1a1a}
+.visa{font-style:italic;font-weight:800;font-size:24px;letter-spacing:.5px;color:#0b0b0b}
+.homeBanner{background:#fff;border-radius:20px;margin-top:26px;padding:14px;display:flex;align-items:center;gap:12px;box-shadow:0 6px 18px -12px rgba(0,0,0,.16)}
+.homeBanner .thumb{width:52px;height:52px;border-radius:12px;flex:0 0 auto;overflow:hidden}
+.homeBanner .bb-tx b{font-size:14px;font-weight:700}
+.homeBanner .bb-tx p{margin:3px 0 0;font-size:13px;color:var(--muted);line-height:1.3}
+.homeBanner .x{margin-left:auto;color:var(--muted-2);width:20px;height:20px;flex:0 0 auto}
+.navwrap{position:absolute;left:0;right:0;bottom:20px;display:flex;align-items:center;justify-content:center;gap:12px;padding:0 18px}
+.nav{background:#fff;border-radius:999px;flex:1;height:60px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;box-shadow:0 8px 24px -10px rgba(0,0,0,.18)}
+.nav .ni{width:24px;height:24px;color:#b9b9b9}
+.nav .ni.active{color:#0b0b0b}
+.qrbtn{width:60px;height:60px;border-radius:20px;background:#0b0b0b;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:0 8px 24px -10px rgba(0,0,0,.35)}
+.qrbtn svg{width:26px;height:26px}
+
+/* TARJETAS */
+.cards-head{display:flex;align-items:center;justify-content:space-between;padding:6px 20px 2px}
+.cards-head .ic{width:24px;height:24px;color:#111}
+.cards-head .help{width:30px;height:30px;border-radius:50%;border:1.6px solid #cfcfcf;display:flex;align-items:center;justify-content:center;color:#8a8a8a;font-weight:700;font-size:15px}
+.pageTitle{font-size:30px;font-weight:800;letter-spacing:-.5px;padding:12px 20px 16px}
+.cardGroup{background:#fff;border-radius:22px;margin-bottom:18px;overflow:hidden;box-shadow:0 6px 18px -14px rgba(0,0,0,.16)}
+.cardRow{display:flex;align-items:center;gap:14px;padding:16px}
+.cardRow+.cardRow{border-top:1px solid var(--line)}
+.cardArt{width:56px;height:38px;border-radius:8px;flex:0 0 auto;position:relative;overflow:hidden;display:flex;align-items:flex-end;padding:4px 6px}
+.cardArt .mini-visa{font-style:italic;font-weight:800;font-size:11px;color:#fff;margin-left:auto}
+.cardArt .dot{position:absolute;top:5px;left:6px;width:12px;height:12px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 3px rgba(199,251,79,.25)}
+.rowInfo{flex:1;min-width:0}
+.rowInfo .rt{font-size:16px;font-weight:700}
+.rowInfo .rn{font-size:14px;font-weight:600;color:#9a9a9a;margin:2px 0 6px}
+.status{display:inline-block;font-size:12px;font-weight:700;padding:4px 10px;border-radius:999px}
+.status.warn{background:var(--orange-bg);color:var(--orange-tx)}
+.status.ok{background:var(--green-bg);color:var(--green-tx)}
+.eye{width:36px;height:36px;border-radius:50%;background:#f1f1f1;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+.eye svg{width:18px;height:18px;color:#7d7d7d}
+.chev{width:20px;height:20px;color:#c2c2c2;flex:0 0 auto}
+.payRow{display:flex;align-items:center;gap:14px;padding:15px 16px;border-top:1px solid var(--line)}
+.payRow .pl{color:#9a9a9a;font-weight:600;font-size:15px}
+.flags{margin-left:auto;display:flex;align-items:center}
+.flag{width:26px;height:26px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:16px;background:#e7e7e7;border:2px solid #fff}
+.flag+.flag{margin-left:-10px}
+
+/* banner slot on Tarjetas (morph target) */
+#banner{background:#fff;border-radius:20px;display:flex;align-items:center;gap:13px;
+  box-shadow:0 8px 22px -12px rgba(0,0,0,.20);cursor:pointer;
+  visibility:hidden;opacity:0;max-height:0;overflow:hidden;margin:0;padding:0 14px;
+  transition:opacity .2s var(--ease)}
+#banner.show{visibility:visible;opacity:1;max-height:120px;padding:14px;margin-bottom:18px}
+.nfc-ico{width:52px;height:52px;border-radius:14px;background:var(--lime);flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.nfc-ico svg{width:28px;height:28px;color:#0b0b0b}
+.nfc-tx b{font-size:14px;font-weight:700;display:block}
+.nfc-tx p{margin:3px 0 0;font-size:13px;color:var(--muted);line-height:1.3}
+#banner .bx{margin-left:auto;width:20px;height:20px;color:var(--muted-2);flex:0 0 auto}
+
+/* push navigation */
+#homeScreen{z-index:1;transition:transform var(--dur) var(--ease),filter var(--dur) var(--ease)}
+#cardsScreen{z-index:2;transform:translateX(100%);box-shadow:-12px 0 40px -18px rgba(0,0,0,.35);transition:transform var(--dur) var(--ease)}
+.phone.nav-cards #cardsScreen{transform:translateX(0)}
+.phone.nav-cards #homeScreen{transform:translateX(-24%);filter:brightness(.92)}
+.phone.no-anim #cardsScreen,.phone.no-anim #homeScreen{transition:none}
+
+/* FULL SCREEN SHEET */
+.sheet{position:absolute;inset:0;z-index:40;background:#fff;display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform var(--dur-open) var(--ease);will-change:transform}
+.sheet.up{transform:translateY(0)}
+.sheet-top{display:flex;justify-content:flex-end;padding:22px 20px 0}
+.sheet .close{width:38px;height:38px;border-radius:50%;background:#f1f1f1;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.sheet .close svg{width:20px;height:20px;color:#3a3a3a}
+.sheet-inner{flex:1;display:flex;flex-direction:column;min-height:0}
+.sheet-body{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 30px;text-align:center}
+.hero{width:210px;height:210px;margin-bottom:10px}
+.sheet h1{font-size:30px;font-weight:800;letter-spacing:-.6px;line-height:1.08;margin:6px 0 12px}
+.sheet p.lead{font-size:16px;line-height:1.45;color:#5b5b5b;max-width:290px;margin:0}
+.sheet-foot{padding:0 22px 26px;display:flex;flex-direction:column;gap:6px}
+.btn{border:none;border-radius:16px;font-family:inherit;font-size:16px;font-weight:700;padding:17px;cursor:pointer}
+.btn.primary{background:var(--lime);color:#0b0b0b}
+.btn.primary:active{background:var(--lime-deep)}
+.btn.ghost{background:transparent;color:#6a6a6a}
+.fading{opacity:0;transition:opacity var(--dur-fade) var(--ease)}
+
+/* MORPH element */
+#morph{position:absolute;z-index:45;background:#fff;border-radius:0;overflow:hidden;display:none;
+  box-shadow:0 20px 50px -20px rgba(0,0,0,.30);
+  transition:top var(--dur-morph) var(--ease-morph),left var(--dur-morph) var(--ease-morph),
+             width var(--dur-morph) var(--ease-morph),height var(--dur-morph) var(--ease-morph),
+             border-radius var(--dur-morph) var(--ease-morph)}
+#morph .m-inner{display:flex;align-items:center;gap:13px;padding:14px;height:100%}
+#morph .m-inner .nfc-tx b,#morph .m-inner .nfc-tx p{opacity:0;transition:opacity .3s ease .12s}
+#morph.landing .m-inner .nfc-tx b,#morph.landing .m-inner .nfc-tx p{opacity:1}
+
+/* controls */
+.controls{display:flex;align-items:center;gap:10px;font-size:13px;color:#555}
+.controls button{font-family:inherit;font-size:13px;font-weight:600;border:1px solid #d5d5d5;background:#fff;color:#222;border-radius:999px;padding:8px 16px;cursor:pointer}
+.controls button:hover{background:#f4f4f4}
+.controls label{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none}
+.hint{font-size:12.5px;color:#8a8a8a;text-align:center;max-width:390px;line-height:1.4}
+@media (prefers-reduced-motion:reduce){:root{--dur:1ms;--dur-open:1ms;--dur-morph:1ms;--dur-fade:1ms}}
+</style>
+</head>
+<body>
+
+<div class="scaler" id="scaler">
+<div class="phone" id="phone">
+
+  <!-- HOME -->
+  <section class="screen" id="homeScreen">
+    <div class="statusbar"><span>12:30</span><span class="sb-r">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 1C11 1 13.2 2 15 3.6M8.5 4.4c1.6 0 3.1.6 4.3 1.6M8.5 7.8c.7 0 1.4.3 1.9.8" stroke="#111" stroke-width="1.4" stroke-linecap="round"/><circle cx="8.5" cy="10.6" r="1.1" fill="#111"/></svg>
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><rect x="1" y="2" width="14" height="8" rx="2.2" stroke="#111" stroke-width="1.3"/><rect x="2.6" y="3.6" width="10.8" height="4.8" rx="1" fill="#111"/><rect x="16" y="4.5" width="1.6" height="3" rx=".8" fill="#111"/></svg>
+      <b style="font-size:12px;font-weight:600">100%</b></span></div>
+
+    <div class="home-head">
+      <div class="userpill"><span class="avatar">R</span><b>$rawww</b></div>
+      <div class="head-icons">
+        <svg class="ic" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="2"/><path d="m20 20-3.2-3.2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <svg class="ic" viewBox="0 0 24 24" fill="none"><rect x="3" y="6" width="18" height="13" rx="3" stroke="currentColor" stroke-width="2"/><path d="M3 10h18" stroke="currentColor" stroke-width="2"/><circle cx="7" cy="14.5" r="1.4" fill="currentColor"/></svg>
+        <svg class="ic" viewBox="0 0 24 24" fill="none"><path d="M18 8.5a6 6 0 1 0-12 0c0 6-2.5 7.5-2.5 7.5h17S18 14.5 18 8.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M10 19.5a2 2 0 0 0 4 0" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+
+    <div class="scroll">
+      <div class="balanceCard">
+        <div class="tabs"><span class="tab">Inicio</span><span class="tab right">Portfolio</span></div>
+        <div class="balLabel">Pesos digitales
+          <svg viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/></svg></div>
+        <div class="balance">$1.487.283</div>
+        <span class="grow">Crece 36,2%
+          <svg viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <div class="actions">
+          <div class="action"><div class="circle"><svg viewBox="0 0 24 24" fill="none"><path d="M12 4v14m0 0-6-6m6 6 6-6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Depositar</span></div>
+          <div class="action"><div class="circle"><svg viewBox="0 0 24 24" fill="none"><path d="M12 3v18M8 7.5c0-1.9 1.8-3 4-3s4 1.1 4 3-1.8 3-4 3-4 1.1-4 3 1.8 3 4 3 4-1.1 4-3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div><span>Usar</span></div>
+          <div class="action"><div class="circle"><svg viewBox="0 0 24 24" fill="none"><path d="M12 20V6m0 0-6 6m6-6 6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span>Enviar</span></div>
+        </div>
+      </div>
+
+      <div class="virtualCard" id="cardTap" role="button" tabindex="0">
+        <div><div class="vc-t">Tarjeta virtual</div><div class="vc-n">•• 1234</div></div>
+        <div class="visa">VISA</div>
+      </div>
+
+      <div class="homeBanner">
+        <div class="thumb"><svg viewBox="0 0 52 52"><rect width="52" height="52" fill="#0b0b0b"/><rect x="7" y="14" width="26" height="17" rx="3" fill="#C7FB4F"/><rect x="12" y="20" width="26" height="17" rx="3" fill="#8fd400" opacity=".9"/><rect x="17" y="26" width="26" height="17" rx="3" fill="#C7FB4F"/></svg></div>
+        <div class="bb-tx"><b>Cambiá tu tarjeta virtual y pagá con NFC</b><p>Hacelo de forma totalmente gratuita.</p></div>
+        <svg class="x" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+    </div>
+
+    <div class="navwrap">
+      <div class="nav">
+        <svg class="ni active" viewBox="0 0 24 24" fill="none"><path d="M4 11.5 12 4l8 7.5V20a1 1 0 0 1-1 1h-4v-6h-6v6H5a1 1 0 0 1-1-1v-8.5Z" fill="currentColor"/></svg>
+        <svg class="ni" viewBox="0 0 24 24" fill="none"><path d="M12 3v9l7 4A9 9 0 1 1 12 3Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+        <svg class="ni" viewBox="0 0 24 24" fill="none"><path d="M3 15l5-6 4 4 6-8 3 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <svg class="ni" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.5" stroke="currentColor" stroke-width="2"/><path d="M12 7.5V12l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <svg class="ni" viewBox="0 0 24 24" fill="none"><rect x="4" y="4" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2"/><rect x="13" y="4" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2"/><rect x="4" y="13" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2"/><rect x="13" y="13" width="7" height="7" rx="2" stroke="currentColor" stroke-width="2"/></svg>
+      </div>
+      <div class="qrbtn"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="7" rx="1.5" stroke="#C7FB4F" stroke-width="2"/><rect x="14" y="3" width="7" height="7" rx="1.5" stroke="#C7FB4F" stroke-width="2"/><rect x="3" y="14" width="7" height="7" rx="1.5" stroke="#C7FB4F" stroke-width="2"/><rect x="15" y="15" width="2.4" height="2.4" fill="#C7FB4F"/><rect x="19" y="15" width="2" height="2.4" fill="#C7FB4F"/><rect x="15" y="19" width="2.4" height="2" fill="#C7FB4F"/><rect x="19" y="19" width="2" height="2" fill="#C7FB4F"/></svg></div>
+    </div>
+  </section>
+
+  <!-- TARJETAS -->
+  <section class="screen" id="cardsScreen">
+    <div class="statusbar"><span>12:30</span><span class="sb-r">
+      <svg width="17" height="12" viewBox="0 0 17 12" fill="none"><path d="M8.5 1C11 1 13.2 2 15 3.6M8.5 4.4c1.6 0 3.1.6 4.3 1.6M8.5 7.8c.7 0 1.4.3 1.9.8" stroke="#111" stroke-width="1.4" stroke-linecap="round"/><circle cx="8.5" cy="10.6" r="1.1" fill="#111"/></svg>
+      <svg width="18" height="12" viewBox="0 0 18 12" fill="none"><rect x="1" y="2" width="14" height="8" rx="2.2" stroke="#111" stroke-width="1.3"/><rect x="2.6" y="3.6" width="10.8" height="4.8" rx="1" fill="#111"/><rect x="16" y="4.5" width="1.6" height="3" rx=".8" fill="#111"/></svg>
+      <b style="font-size:12px;font-weight:600">100%</b></span></div>
+    <div class="cards-head">
+      <svg class="ic" id="backBtn" style="cursor:pointer" viewBox="0 0 24 24" fill="none"><path d="M15 5l-7 7 7 7" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <div class="help">?</div>
+    </div>
+    <div class="pageTitle">Tarjetas</div>
+    <div class="scroll">
+
+      <!-- banner (morph target) -->
+      <div id="banner">
+        <div class="nfc-ico"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 4.5A11 11 0 0 1 6.5 19.5M10 7a7 7 0 0 1 0 10M13.5 9.5a3 3 0 0 1 0 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+        <div class="nfc-tx"><b>Cambiá tu tarjeta virtual</b><p>Pasate a la nueva con NFC y pagá apoyando el celu.</p></div>
+        <svg class="bx" id="bannerClose" viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+
+      <div class="cardGroup">
+        <div class="cardRow">
+          <div class="cardArt" style="background:linear-gradient(135deg,#123b1d,#0b2412)"><span class="dot"></span><span class="mini-visa">VISA</span></div>
+          <div class="rowInfo"><div class="rt">Prepaga física</div><div class="rn">*4323</div><span class="status warn">Próximo a vencer</span></div>
+          <div class="eye"><svg viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/></svg></div>
+          <svg class="chev" viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="cardRow">
+          <div class="cardArt" style="background:linear-gradient(135deg,#5b2a9e,#2a1250)"><span class="dot" style="background:#c9a3ff;box-shadow:0 0 0 3px rgba(201,163,255,.25)"></span><span class="mini-visa">VISA</span></div>
+          <div class="rowInfo"><div class="rt">Prepaga virtual</div><div class="rn">*4323</div><span class="status ok">Activa</span></div>
+          <div class="eye"><svg viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/></svg></div>
+          <svg class="chev" viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="payRow">
+          <span class="pl">Moneda de pago</span>
+          <div class="flags"><span class="flag">🇺🇸</span><span class="flag">🇦🇷</span></div>
+          <svg class="chev" style="margin-left:10px" viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="cardGroup">
+        <div class="cardRow">
+          <div class="cardArt" style="background:linear-gradient(135deg,#2a2a2a,#000)"><span class="dot" style="background:#e8e8e8;box-shadow:0 0 0 3px rgba(255,255,255,.2)"></span><span class="mini-visa">VISA</span></div>
+          <div class="rowInfo"><div class="rt">Crédito física</div><div class="rn">*4323</div><span class="status ok">Activa</span></div>
+          <div class="eye"><svg viewBox="0 0 24 24" fill="none"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6Z" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="2.6" stroke="currentColor" stroke-width="1.8"/></svg></div>
+          <svg class="chev" viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MORPH element -->
+  <div id="morph"><div class="m-inner">
+    <div class="nfc-ico"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 4.5A11 11 0 0 1 6.5 19.5M10 7a7 7 0 0 1 0 10M13.5 9.5a3 3 0 0 1 0 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
+    <div class="nfc-tx"><b>Cambiá tu tarjeta virtual</b><p>Pasate a la nueva con NFC y pagá apoyando el celu.</p></div>
+  </div></div>
+
+  <!-- FULL SCREEN NFC -->
+  <section class="sheet" id="sheet">
+    <div class="sheet-inner" id="sheetInner">
+      <div class="sheet-top"><div class="close" id="sheetClose"><svg viewBox="0 0 24 24" fill="none"><path d="M6 6l12 12M18 6 6 18" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></div></div>
+      <div class="sheet-body">
+        <svg class="hero" viewBox="0 0 210 210" fill="none">
+          <circle cx="105" cy="105" r="102" fill="#F3FBDC"/>
+          <rect x="112" y="70" width="66" height="96" rx="12" fill="#0b0b0b"/>
+          <rect x="120" y="80" width="50" height="30" rx="5" fill="#1f1f1f"/>
+          <rect x="123" y="120" width="12" height="9" rx="2.5" fill="#3a3a3a"/><rect x="140" y="120" width="12" height="9" rx="2.5" fill="#3a3a3a"/><rect x="157" y="120" width="12" height="9" rx="2.5" fill="#3a3a3a"/>
+          <rect x="123" y="134" width="12" height="9" rx="2.5" fill="#3a3a3a"/><rect x="140" y="134" width="12" height="9" rx="2.5" fill="#3a3a3a"/><rect x="157" y="134" width="12" height="9" rx="2.5" fill="#3a3a3a"/>
+          <rect x="34" y="86" width="60" height="96" rx="13" fill="#C7FB4F" stroke="#0b0b0b" stroke-width="3"/>
+          <rect x="44" y="100" width="40" height="16" rx="4" fill="#0b0b0b"/>
+          <circle cx="64" cy="150" r="12" fill="#0b0b0b"/>
+          <path d="M92 92c9 8 9 30 0 40" stroke="#0b0b0b" stroke-width="4" stroke-linecap="round"/>
+          <path d="M100 84c14 12 14 42 0 56" stroke="#0b0b0b" stroke-width="4" stroke-linecap="round" opacity=".55"/>
+        </svg>
+        <h1>Cambiá tu tarjeta virtual y empezá a pagar con NFC</h1>
+        <p class="lead">Pagá con NFC en tu celular agregando tu tarjeta a Apple. Y olvidate de salir con tu billetera.</p>
+      </div>
+      <div class="sheet-foot">
+        <button class="btn primary" id="sheetCTA">Cambiar mi tarjeta</button>
+        <button class="btn ghost" id="sheetLater">Ahora no</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+</div>
+
+<div class="controls">
+  <button id="reset">↺ Reiniciar</button>
+  <label><input type="checkbox" id="slow"> Cámara lenta</label>
+</div>
+<div class="hint">Tocá la <b>tarjeta virtual</b> (verde, VISA). Cerrá con la <b>X</b> o "Ahora no" y la pantalla se transforma en un <b>banner</b> sobre Tarjetas.</div>
+
+<script>
+const phone=document.getElementById('phone');
+const sheet=document.getElementById('sheet');
+const sheetInner=document.getElementById('sheetInner');
+const morph=document.getElementById('morph');
+const banner=document.getElementById('banner');
+const cardTap=document.getElementById('cardTap');
+
+function dur(v){const s=getComputedStyle(document.documentElement).getPropertyValue(v).trim();return parseFloat(s)*(s.includes('ms')?1:1000);}
+function rectIn(el){const p=phone.getBoundingClientRect(),r=el.getBoundingClientRect(),sc=p.width/phone.offsetWidth;
+  return{top:(r.top-p.top)/sc,left:(r.left-p.left)/sc,width:r.width/sc,height:r.height/sc};}
+
+/* open full screen */
+function openSheet(){sheetInner.classList.remove('fading');sheet.style.display='flex';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>sheet.classList.add('up')));}
+cardTap.addEventListener('click',openSheet);
+cardTap.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openSheet();}});
+banner.addEventListener('click',e=>{if(e.target.id!=='bannerClose')openSheet();});
+
+/* put Tarjetas in place instantly (behind the sheet) */
+function placeCards(){phone.classList.add('no-anim','nav-cards');phone.offsetHeight;phone.classList.remove('no-anim');}
+
+/* CTA: ir a Tarjetas sin banner (tomó la acción) */
+document.getElementById('sheetCTA').addEventListener('click',()=>{
+  placeCards();
+  sheet.classList.remove('up');
+  setTimeout(()=>sheet.style.display='none',dur('--dur-open'));
+});
+
+/* X o "Ahora no": morph a banner en Tarjetas */
+document.getElementById('sheetClose').addEventListener('click',closeToBanner);
+document.getElementById('sheetLater').addEventListener('click',closeToBanner);
+
+function closeToBanner(){
+  placeCards();                       // Tarjetas queda lista detrás del full screen
+  banner.classList.add('show');
+  banner.style.visibility='hidden';   // reserva el lugar para medirlo
+  const start=rectIn(sheet), end=rectIn(banner);
+  sheetInner.classList.add('fading'); // contenido del full screen se desvanece
+
+  morph.style.display='block';
+  morph.style.transition='none';
+  morph.style.top=start.top+'px';morph.style.left=start.left+'px';
+  morph.style.width=start.width+'px';morph.style.height=start.height+'px';morph.style.borderRadius='0px';
+
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    morph.style.transition='';morph.classList.add('landing');
+    morph.style.top=end.top+'px';morph.style.left=end.left+'px';
+    morph.style.width=end.width+'px';morph.style.height=end.height+'px';morph.style.borderRadius='20px';
+    setTimeout(()=>{sheet.classList.remove('up');sheet.style.display='none';},dur('--dur-fade'));
+  }));
+
+  let finished=false;
+  const done=()=>{if(finished)return;finished=true;morph.removeEventListener('transitionend',done);
+    banner.style.visibility='visible';morph.style.display='none';morph.classList.remove('landing');};
+  morph.addEventListener('transitionend',done);
+  setTimeout(done,dur('--dur-morph')+120);
+}
+
+/* dismiss banner */
+document.getElementById('bannerClose').addEventListener('click',e=>{
+  e.stopPropagation();banner.classList.remove('show');banner.style.visibility='hidden';});
+
+/* back to Home */
+document.getElementById('backBtn').addEventListener('click',()=>phone.classList.remove('nav-cards'));
+
+/* reset */
+document.getElementById('reset').addEventListener('click',()=>{
+  phone.classList.remove('nav-cards','no-anim');
+  sheet.classList.remove('up');sheet.style.display='none';sheetInner.classList.remove('fading');
+  morph.style.display='none';morph.classList.remove('landing');
+  banner.classList.remove('show');banner.style.visibility='hidden';});
+
+/* slowmo */
+document.getElementById('slow').addEventListener('change',e=>document.body.classList.toggle('slowmo',e.target.checked));
+
+/* fit */
+function fit(){const s=document.getElementById('scaler');
+  const scale=Math.min(1,(window.innerHeight-120)/832,(window.innerWidth-24)/384);
+  s.style.transform=`scale(${scale})`;s.style.marginBottom=`${-(832*(1-scale))}px`;}
+window.addEventListener('resize',fit);fit();
+</script>
+</body>
+</html>
