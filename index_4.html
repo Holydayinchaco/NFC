@@ -149,6 +149,101 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
 .controls label{display:flex;align-items:center;gap:7px;cursor:pointer;user-select:none}
 .hint{font-size:12.5px;color:#8a8a8a;text-align:center;max-width:390px;line-height:1.4}
 @media (prefers-reduced-motion:reduce){:root{--dur:1ms;--dur-open:1ms;--dur-morph:1ms;--dur-fade:1ms}}
+
+/* ===== CARD STUDIO (galería de diseños de tarjeta) ===== */
+#studio{position:absolute;inset:0;z-index:60;background:#000;color:#fff;font-family:inherit;
+  transform:translateY(100%);transition:transform .5s var(--ease);will-change:transform;overflow:hidden}
+#studio.open{transform:translateY(0)}
+#studio .cs-status{height:44px;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:0 22px 0 26px;font-size:14px;font-weight:600;color:#fff}
+#studio .cs-layer{position:absolute;inset:0;display:flex;flex-direction:column;background:#000}
+#studio .cs-gallery{z-index:10}
+#studio .cs-detail{z-index:20;transform:translateY(100%);opacity:0;pointer-events:none;transition:transform .5s var(--ease),opacity .3s ease}
+#studio .cs-detail.open{transform:translateY(0);opacity:1;pointer-events:auto}
+#studio .cs-customize{z-index:30;opacity:0;pointer-events:none;transition:opacity .5s ease}
+#studio .cs-customize.open{opacity:1;pointer-events:auto}
+#studio .cs-topbar{position:relative;z-index:40;height:52px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;padding:0 16px}
+#studio .cs-ttl{font-size:16px;font-weight:700}
+#studio .cs-iconbtn{position:absolute;top:50%;transform:translateY(-50%);left:14px;width:36px;height:36px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.12);color:#fff}
+#studio .cs-iconbtn svg{width:16px;height:16px}
+#studio .cs-card{position:relative;width:100%;aspect-ratio:.63/1;border-radius:18px;overflow:hidden;color:#0a0a0a;box-shadow:0 18px 34px -18px rgba(0,0,0,.8),inset 0 0 0 .5px rgba(255,255,255,.14)}
+#studio .cs-card.cs-light{color:#f7f7f9}
+#studio .cs-card .cs-chip{position:absolute;top:15%;left:50%;transform:translateX(-50%);width:30px;height:23px;border-radius:5px;background:linear-gradient(135deg,#e9e6d8,#b9b39a 35%,#f4f2ea 55%,#9c977f);box-shadow:inset 0 0 0 .5px rgba(0,0,0,.25)}
+#studio .cs-card .cs-tag{position:absolute;right:11%;bottom:10%;writing-mode:vertical-rl;transform:rotate(180deg);font-size:10px;font-weight:700;letter-spacing:.5px;opacity:.9}
+#studio .cs-card .cs-sheen{position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.28) 45%,transparent 60%);mix-blend-mode:overlay}
+#studio .cs-card.cs-sm{border-radius:9px}
+#studio .cs-card.cs-sm .cs-chip{width:13px;height:10px;border-radius:2px}
+#studio .cs-card.cs-sm .cs-tag{display:none}
+#studio .cs-body{position:relative;flex:1 1 auto;overflow:hidden}
+#studio .cs-gridview{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding:6px 18px 110px;scrollbar-width:none}
+#studio .cs-gridview::-webkit-scrollbar{display:none}
+#studio .cs-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px 12px}
+#studio .cs-gtile{display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:transform .15s var(--ease)}
+#studio .cs-gtile:active{transform:scale(.93)}
+#studio .cs-free{font-size:8px;letter-spacing:.8px;color:#7d7d84;text-align:center;text-transform:uppercase}
+#studio .cs-focusview{position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:grab;z-index:3}
+#studio .cs-focusview:active{cursor:grabbing}
+#studio .cs-plane{position:absolute;inset:0}
+#studio .cs-cell{position:absolute;top:0;left:0;will-change:transform,opacity;transform-origin:center center}
+#studio .cs-cell .cs-card{width:100%}
+#studio .cs-cell .cs-flabel{position:absolute;top:100%;left:50%;margin-top:12px;transform:translate(-50%,0) scale(var(--inv,1));transform-origin:top center;white-space:nowrap;font-size:11px;letter-spacing:1.4px;text-transform:uppercase;color:#e6e6eb;opacity:0;transition:opacity .18s}
+#studio .cs-cell.cs-focused .cs-flabel{opacity:1}
+#studio .cs-gallery.cs-mode-grid .cs-focusview{display:none}
+#studio .cs-gallery.cs-mode-focus .cs-gridview{display:none}
+#studio .cs-modebtn{position:absolute;bottom:22px;left:50%;transform:translateX(-50%);z-index:25;width:46px;height:46px;border-radius:15px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.14);color:#fff}
+#studio .cs-modebtn:active{transform:translateX(-50%) scale(.9)}
+#studio .cs-modebtn .cs-ico{display:none}
+#studio .cs-gallery.cs-mode-grid .cs-modebtn .cs-ico-focus{display:block}
+#studio .cs-gallery.cs-mode-focus .cs-modebtn .cs-ico-grid{display:block}
+#studio .cs-dscroll{flex:1 1 auto;overflow-y:auto;overflow-x:hidden;scrollbar-width:none}
+#studio .cs-dscroll::-webkit-scrollbar{display:none}
+#studio .cs-dhead{position:relative;z-index:30;height:52px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;background:linear-gradient(#000 62%,transparent)}
+#studio .cs-dcontent{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:28px;padding:6px 24px 0;min-height:0}
+#studio .cs-stage{width:100%;display:flex;align-items:center;justify-content:center;perspective:1100px;touch-action:none;cursor:grab}
+#studio .cs-stage:active{cursor:grabbing}
+#studio .cs-card3d{width:198px;transform:rotateX(6deg) rotateY(-14deg);transition:transform .6s var(--ease);will-change:transform}
+#studio .cs-card3d .cs-card{box-shadow:-30px 40px 70px -25px rgba(0,0,0,.95),inset 0 0 0 .5px rgba(255,255,255,.16)}
+#studio .cs-namewrap{text-align:center;display:flex;flex-direction:column;align-items:center;gap:5px}
+#studio .cs-namewrap .cs-eyebrow{margin-bottom:2px}
+#studio .cs-name{font-size:30px;font-weight:800;letter-spacing:-.6px}
+#studio .cs-sub{font-size:14px;color:#a9a9b0;font-weight:600}
+#studio .cs-hint2{font-size:12px;color:#6a6a72;margin-top:6px}
+#studio .cs-hero{padding:16px 0 24px;display:flex;align-items:center;justify-content:center;perspective:1200px}
+#studio .cs-hero .cs-card{width:178px;transform:rotateY(-16deg) rotateX(6deg) rotate(2deg);box-shadow:-26px 36px 60px -24px rgba(0,0,0,.95),inset 0 0 0 .5px rgba(255,255,255,.16)}
+#studio .cs-dbody{padding:0 24px}
+#studio .cs-eyebrow{font-size:11px;font-weight:800;letter-spacing:1.6px;text-transform:uppercase;color:#7d7d84}
+#studio .cs-desc{font-size:24px;line-height:1.22;font-weight:700;letter-spacing:-.4px;margin:8px 0 0}
+#studio .cs-feature{margin-top:28px;border-radius:20px;overflow:hidden;position:relative;height:250px;display:flex;flex-direction:column;justify-content:flex-end;padding:20px}
+#studio .cs-feature .cs-fill{position:absolute;inset:0;z-index:0}
+#studio .cs-feature .cs-lock{position:relative;z-index:1;width:24px;height:24px;margin-bottom:8px}
+#studio .cs-feature .cs-lbl{position:relative;z-index:1}
+#studio .cs-feature h3{margin:0;font-size:19px;font-weight:700}
+#studio .cs-feature p{margin:5px 0 0;font-size:13px;line-height:1.4;color:#c9c9cf;max-width:28ch}
+#studio .cs-specs{margin:26px 0 22px;display:flex;flex-direction:column;gap:1px;border-radius:14px;overflow:hidden}
+#studio .cs-spec{display:flex;justify-content:space-between;background:#101012;padding:15px 16px;font-size:14px}
+#studio .cs-spec span:first-child{color:#7d7d84}
+#studio .cs-spec span:last-child{font-weight:700}
+#studio .cs-dock{flex:0 0 auto;z-index:40;padding:12px 20px 20px;display:flex;flex-direction:column;gap:9px;background:linear-gradient(transparent,#000 26%)}
+#studio .cs-btn{width:100%;height:52px;border-radius:15px;border:none;cursor:pointer;font-family:inherit;font-size:16px;font-weight:700;transition:transform .12s var(--ease)}
+#studio .cs-btn:active{transform:scale(.975)}
+#studio .cs-btn.cs-primary{background:var(--lime);color:#0b0b0b}
+#studio .cs-btn.cs-primary:active{background:var(--lime-deep)}
+#studio .cs-btn.cs-ghost{background:transparent;color:#fff;box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.2)}
+#studio .cs-cv{position:absolute;inset:0;width:100%;height:100%;display:block}
+#studio .cs-floatcard{position:absolute;top:50%;left:50%;width:148px;transform:translate(-50%,-50%);animation:csBob 5s ease-in-out infinite;filter:drop-shadow(0 30px 50px rgba(0,0,0,.8));z-index:2}
+@keyframes csBob{0%,100%{transform:translate(-50%,-52%) rotate(-3deg)}50%{transform:translate(-50%,-48%) rotate(3deg)}}
+#studio .cs-ctrls{position:absolute;left:0;right:0;bottom:30px;z-index:5;display:flex;align-items:center;justify-content:center;gap:24px}
+#studio .cs-ctrls .cs-c{width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.14);display:flex;align-items:center;justify-content:center;color:#fff;border:none;cursor:pointer}
+#studio .cs-ctrls .cs-c.cs-big{width:58px;height:58px;background:#fff;color:#000}
+#studio .cs-close-c{position:absolute;top:16px;left:14px;z-index:6}
+#studio .cs-toast{position:absolute;left:50%;bottom:96px;transform:translate(-50%,20px);z-index:80;background:#fff;color:#0b0b0b;padding:13px 18px;border-radius:13px;font-size:14px;font-weight:700;box-shadow:0 20px 40px -12px rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .3s,transform .3s var(--ease);display:flex;align-items:center;gap:8px;white-space:nowrap}
+#studio .cs-toast.show{opacity:1;transform:translate(-50%,0)}
+.studioEntry{width:100%;border:none;background:#fff;border-radius:20px;margin-bottom:18px;padding:14px;display:flex;align-items:center;gap:13px;box-shadow:0 8px 22px -12px rgba(0,0,0,.2);cursor:pointer;font-family:inherit;text-align:left;transition:transform .15s var(--ease)}
+.studioEntry:active{transform:scale(.99)}
+.studioEntry .se-ic{width:52px;height:52px;border-radius:14px;background:var(--lime);flex:0 0 auto;display:flex;align-items:center;justify-content:center}
+.studioEntry .se-ic svg{width:28px;height:28px;color:#0b0b0b}
+.studioEntry .se-tx b{font-size:14px;font-weight:700;display:block}
+.studioEntry .se-tx i{font-style:normal;font-size:13px;color:var(--muted);display:block;margin-top:3px}
+.studioEntry .se-ch{margin-left:auto;width:20px;height:20px;color:var(--muted-2);flex:0 0 auto}
 </style>
 </head>
 <body>
@@ -224,6 +319,13 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
     <div class="pageTitle">Tarjetas</div>
     <div class="scroll">
 
+      <!-- entrada al Card Studio -->
+      <button class="studioEntry" id="openStudio">
+        <span class="se-ic"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="7" width="13" height="9" rx="2" fill="#0b0b0b"/><rect x="8" y="11" width="13" height="9" rx="2" fill="#0b0b0b" opacity=".5"/></svg></span>
+        <span class="se-tx"><b>Elegí tu diseño</b><i>Elegí entre 10 diseños y pedila gratis</i></span>
+        <svg class="se-ch" viewBox="0 0 24 24" fill="none"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+
       <!-- banner (morph target) -->
       <div id="banner">
         <div class="nfc-ico"><svg viewBox="0 0 24 24" fill="none"><path d="M6.5 4.5A11 11 0 0 1 6.5 19.5M10 7a7 7 0 0 1 0 10M13.5 9.5a3 3 0 0 1 0 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></div>
@@ -294,6 +396,49 @@ body{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans
     </div>
   </section>
 
+  <!-- ===== CARD STUDIO ===== -->
+  <div id="studio">
+    <div class="cs-status"><span>12:30</span><span>100%</span></div>
+
+    <!-- galería: grilla + foco infinito -->
+    <div class="cs-layer cs-gallery cs-mode-grid" id="galleryLayer">
+      <div class="cs-topbar">
+        <button class="cs-iconbtn" id="studioClose" aria-label="Cerrar"><svg viewBox="0 0 24 24" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></svg></button>
+        <div class="cs-ttl">Elegí tu diseño</div>
+      </div>
+      <div class="cs-body">
+        <div class="cs-gridview" id="gridView"><div class="cs-grid" id="gridEl"></div></div>
+        <div class="cs-focusview" id="focusView"><div class="cs-plane" id="plane"></div></div>
+      </div>
+      <button class="cs-modebtn" id="modeBtn" aria-label="Cambiar vista">
+        <svg class="cs-ico cs-ico-focus" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.9" width="22" height="22"><rect x="8" y="4" width="8" height="16" rx="2.2"/></svg>
+        <svg class="cs-ico cs-ico-grid" viewBox="0 0 24 24" fill="#fff" width="20" height="20"><circle cx="6" cy="6" r="2.1"/><circle cx="12" cy="6" r="2.1"/><circle cx="18" cy="6" r="2.1"/><circle cx="6" cy="12" r="2.1"/><circle cx="12" cy="12" r="2.1"/><circle cx="18" cy="12" r="2.1"/><circle cx="6" cy="18" r="2.1"/><circle cx="12" cy="18" r="2.1"/><circle cx="18" cy="18" r="2.1"/></svg>
+      </button>
+    </div>
+
+    <!-- detalle: tarjeta elegida (interactiva) -->
+    <div class="cs-layer cs-detail" id="detailLayer">
+      <div class="cs-dhead">
+        <button class="cs-iconbtn" id="detailBack" aria-label="Volver"><svg viewBox="0 0 24 24" stroke="#fff" stroke-width="2.4" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+        <div class="cs-ttl">Tu nueva tarjeta</div>
+      </div>
+      <div class="cs-dcontent">
+        <div class="cs-stage" id="cardStage"><div class="cs-card3d" id="detailHero"></div></div>
+        <div class="cs-namewrap">
+          <div class="cs-eyebrow" id="detailEyebrow">TARJETA</div>
+          <div class="cs-name" id="detailName">—</div>
+          <div class="cs-sub" id="detailSub"></div>
+          <div class="cs-hint2">Tocá la tarjeta y movela</div>
+        </div>
+      </div>
+      <div class="cs-dock">
+        <button class="cs-btn cs-primary" id="btnContinue">Elegir y continuar</button>
+      </div>
+    </div>
+
+    <div class="cs-toast" id="toast"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0b0b0b" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span id="toastMsg"></span></div>
+  </div>
+
 </div>
 </div>
 
@@ -325,9 +470,10 @@ banner.addEventListener('click',e=>{if(e.target.id!=='bannerClose')openSheet();}
 /* put Tarjetas in place instantly (behind the sheet) */
 function placeCards(){phone.classList.add('no-anim','nav-cards');phone.offsetHeight;phone.classList.remove('no-anim');}
 
-/* CTA: ir a Tarjetas sin banner (tomó la acción) */
+/* CTA: "Cambiar mi tarjeta" -> abre el Card Studio (elegir diseño) */
 document.getElementById('sheetCTA').addEventListener('click',()=>{
-  placeCards();
+  placeCards();                       // Tarjetas queda detrás
+  studio.classList.add('open');       // el studio sube por encima del sheet
   sheet.classList.remove('up');
   setTimeout(()=>sheet.style.display='none',dur('--dur-open'));
 });
@@ -384,6 +530,93 @@ function fit(){const s=document.getElementById('scaler');
   const scale=Math.min(1,(window.innerHeight-120)/832,(window.innerWidth-24)/384);
   s.style.transform=`scale(${scale})`;s.style.marginBottom=`${-(832*(1-scale))}px`;}
 window.addEventListener('resize',fit);fit();
+
+/* ===== CARD STUDIO ===== */
+const studio=document.getElementById('studio');
+document.getElementById('openStudio').addEventListener('click',()=>studio.classList.add('open'));
+
+(function(){
+  const CARDS=[
+    {name:"Lima",light:false,face:"radial-gradient(120% 90% at 30% 15%,#dbff77,#C7FB4F 45%,#a6e000 100%)",eyebrow:"Lemon",desc:"La clásica lima, con la identidad de Lemon.",mat:"Metal",ed:"Abierta",feat:"radial-gradient(80% 60% at 50% 0%,#2b3b00,#070d00 72%)"},
+    {name:"Fluo",light:false,face:"radial-gradient(120% 90% at 30% 15%,#e4ff5a,#c9ff21 45%,#a6e000 100%)",eyebrow:"Neón",desc:"Que se vea de noche: brilla en la oscuridad.",mat:"Polímero",ed:"Abierta",feat:"radial-gradient(80% 60% at 50% 0%,#1c2b00,#050a00 70%),radial-gradient(2px 2px at 20% 30%,#c9ff21,transparent),radial-gradient(2px 2px at 70% 60%,#c9ff21,transparent),radial-gradient(1.5px 1.5px at 45% 80%,#eaff8a,transparent)"},
+    {name:"Blanca",light:false,face:"linear-gradient(150deg,#ffffff,#e7e7ec 55%,#c9c9d1)",eyebrow:"Clásica",desc:"Metal blanco, pesada e imposible de ignorar.",mat:"Metal",ed:"Abierta",feat:"linear-gradient(160deg,#3a3a40,#0c0c0e)"},
+    {name:"Rosa",light:true,face:"radial-gradient(120% 90% at 25% 10%,#ff5aa0,#ff0a6c 50%,#c4004f 100%)",eyebrow:"Statement",desc:"Un rosa fuerte que se ve mejor en persona.",mat:"Metal",ed:"Abierta",feat:"radial-gradient(90% 70% at 50% 10%,#ff0a6c,#2a0013 75%)"},
+    {name:"Glitter",light:true,face:"linear-gradient(150deg,#0e5c46,#1fb98a 55%,#0b3f31)",eyebrow:"Brillos",desc:"Miles de destellos según cómo la inclines.",mat:"Resina",ed:"Abierta",feat:"radial-gradient(90% 70% at 50% 0%,#134a3a,#03130f 75%),radial-gradient(1.5px 1.5px at 30% 40%,#8affd8,transparent),radial-gradient(2px 2px at 50% 75%,#d6fff0,transparent)"},
+    {name:"Carey",light:true,face:"radial-gradient(30% 22% at 22% 20%,#ff8a3c,transparent 60%),radial-gradient(26% 20% at 70% 30%,#ff5a1f,transparent 60%),radial-gradient(34% 26% at 55% 68%,#d94500,transparent 62%),linear-gradient(160deg,#241207,#0a0603)",eyebrow:"1 de 1",desc:"Un carey único. Personalizá tu tarjeta 1 de 1.",mat:"Acetato",ed:"1 de 1",feat:"radial-gradient(30% 24% at 30% 25%,#ff7a2e,transparent 60%),radial-gradient(26% 20% at 68% 55%,#ff5a1f,transparent 60%),linear-gradient(160deg,#1c0e05,#050302)"},
+    {name:"Mood",light:true,face:"linear-gradient(150deg,#3a3550,#171423 60%,#0c0a14)",eyebrow:"Termocromática",desc:"Cambia de color con el calor de tu mano.",mat:"Metal",ed:"Abierta",feat:"linear-gradient(160deg,#2a2740,#08070d)"},
+    {name:"Holo",light:false,face:"conic-gradient(from 210deg,#ff4d9d,#ffd23f,#3dd6ff,#9b5cff,#ff4d9d)",eyebrow:"Iridiscente",desc:"Un acabado holográfico que nunca queda quieto.",mat:"Metal",ed:"Abierta",feat:"conic-gradient(from 160deg at 50% 30%,#ff4d9d,#ffd23f,#3dd6ff,#9b5cff,#ff4d9d)"},
+    {name:"Medianoche",light:true,face:"radial-gradient(120% 90% at 70% 10%,#26407f,#0a1030 55%,#04060f)",eyebrow:"Profunda",desc:"Azul noche con un campo de estrellas apenas visible.",mat:"Metal",ed:"Abierta",feat:"radial-gradient(90% 70% at 50% 0%,#132a63,#02030a 75%)"},
+    {name:"Fuego",light:true,face:"radial-gradient(120% 90% at 25% 15%,#ffb43c,#ff5a1f 45%,#b31111 100%)",eyebrow:"Calor",desc:"Del naranja al rojo profundo. La más ruidosa.",mat:"Metal",ed:"Abierta",feat:"radial-gradient(90% 70% at 50% 10%,#ff5a1f,#2a0603 78%)"},
+  ];
+  const cardFace=(c,opts={})=>`<div class="cs-card ${c.light?'cs-light ':''}${opts.sm?'cs-sm':''}" style="background:${c.face}"><div class="cs-chip"></div><div class="cs-tag">$rawww</div><div class="cs-sheen"></div></div>`;
+  const $=id=>document.getElementById(id);
+  const galleryLayer=$('galleryLayer'),modeBtn=$('modeBtn'),focusView=$('focusView'),plane=$('plane');
+
+  /* grid */
+  const gridEl=$('gridEl');
+  CARDS.forEach((c,i)=>{const t=document.createElement('div');t.className='cs-gtile';t.innerHTML=cardFace(c,{sm:true})+'<div class="cs-free">Gratis</div>';t.addEventListener('click',()=>openDetail(i));gridEl.appendChild(t);});
+
+  /* focus: infinite 2D spatial grid */
+  const N=CARDS.length,mod=(n,m)=>((n%m)+m)%m,cardAt=(col,row)=>mod(col*3+row*7,N);
+  let vpW=0,vpH=0,cardW=150,cellW=250,cellH=280;
+  const COLS=2,ROWS=3,pool=[];
+  function buildPool(){plane.innerHTML='';pool.length=0;for(let dc=-COLS;dc<=COLS;dc++)for(let dr=-ROWS;dr<=ROWS;dr++){const el=document.createElement('div');el.className='cs-cell';el.innerHTML=cardFace(CARDS[0])+'<div class="cs-flabel"></div>';plane.appendChild(el);pool.push({el,dc,dr,card:el.querySelector('.cs-card'),label:el.querySelector('.cs-flabel'),idx:-1,col:0,row:0});}}
+  function measureFocus(){vpW=focusView.clientWidth;vpH=focusView.clientHeight;cardW=Math.round(Math.min(160,vpW*0.40));const cardH=Math.round(cardW/0.63);cellW=Math.round(vpW*0.58);cellH=Math.round(cardH*1.08);}
+  let camX=0,camY=0,focusIdx=0;
+  function renderFocus(){const cx=vpW/2,cy=vpH/2,baseCol=Math.round(camX/cellW),baseRow=Math.round(camY/cellH);let best=1e9,bestIdx=0;pool.forEach(p=>{const col=baseCol+p.dc,row=baseRow+p.dr,wx=col*cellW,wy=row*cellH,sx=cx+wx-camX,sy=cy+wy-camY,dx=(wx-camX)/cellW,dy=(wy-camY)/cellH,d=Math.hypot(dx,dy),s=Math.max(0.52,1.3-d*0.6),o=Math.max(0.26,1-d*0.36);p.el.style.width=cardW+'px';p.el.style.transform='translate('+sx+'px,'+sy+'px) translate(-50%,-50%) scale('+s.toFixed(3)+')';p.el.style.opacity=o.toFixed(3);p.el.style.zIndex=Math.round(1000-d*120);p.el.style.setProperty('--inv',(1/s).toFixed(3));const idx=cardAt(col,row);if(idx!==p.idx){p.idx=idx;p.card.style.background=CARDS[idx].face;p.card.className='cs-card'+(CARDS[idx].light?' cs-light':'');p.label.textContent=CARDS[idx].name+' - Gratis';}p.col=col;p.row=row;p.el.classList.toggle('cs-focused',d<0.35);if(d<best){best=d;bestIdx=idx;}});focusIdx=bestIdx;}
+  let rafFocus=null,dragging=false,snapping=false,moved=0,lastX=0,lastY=0,lastT=0,velX=0,velY=0,snapX=0,snapY=0,sc=1;
+  function snapTo(){snapX=Math.round(camX/cellW)*cellW;snapY=Math.round(camY/cellH)*cellH;snapping=true;}
+  function loop(){if(!dragging){if(snapping){camX+=(snapX-camX)*0.18;camY+=(snapY-camY)*0.18;if(Math.abs(snapX-camX)<0.4&&Math.abs(snapY-camY)<0.4){camX=snapX;camY=snapY;snapping=false;}}else if(velX||velY){camX+=velX;camY+=velY;velX*=0.9;velY*=0.9;if(Math.hypot(velX,velY)<0.2){velX=velY=0;snapTo();}}}renderFocus();rafFocus=requestAnimationFrame(loop);}
+  function startFocusEngine(){measureFocus();if(!pool.length)buildPool();if(!rafFocus)rafFocus=requestAnimationFrame(loop);}
+  function stopFocusEngine(){if(rafFocus){cancelAnimationFrame(rafFocus);rafFocus=null;}}
+  focusView.addEventListener('pointerdown',e=>{dragging=true;snapping=false;velX=velY=0;moved=0;lastX=e.clientX;lastY=e.clientY;lastT=performance.now();sc=(phone.getBoundingClientRect().width/phone.offsetWidth)||1;try{focusView.setPointerCapture(e.pointerId);}catch(_){}});
+  focusView.addEventListener('pointermove',e=>{if(!dragging)return;const dx=(e.clientX-lastX)/sc,dy=(e.clientY-lastY)/sc;camX-=dx;camY-=dy;moved+=Math.hypot(dx,dy);const now=performance.now(),dt=Math.max(8,now-lastT);velX=-dx/dt*16;velY=-dy/dt*16;lastX=e.clientX;lastY=e.clientY;lastT=now;});
+  function endDrag(e){if(!dragging)return;dragging=false;if(moved<6){velX=velY=0;const t=document.elementFromPoint(e.clientX,e.clientY),cell=t&&t.closest('.cs-cell'),p=cell&&pool.find(pp=>pp.el===cell);if(p&&!p.el.classList.contains('cs-focused')){snapX=p.col*cellW;snapY=p.row*cellH;snapping=true;}else openDetail(focusIdx);}}
+  focusView.addEventListener('pointerup',endDrag);
+  focusView.addEventListener('pointercancel',()=>{dragging=false;snapTo();});
+  let wheelTimer=null;
+  focusView.addEventListener('wheel',e=>{e.preventDefault();snapping=false;velX=velY=0;camX+=e.deltaX;camY+=e.deltaY;clearTimeout(wheelTimer);wheelTimer=setTimeout(snapTo,110);},{passive:false});
+
+  /* mode toggle */
+  let mode='grid';
+  function setMode(m){mode=m;galleryLayer.classList.toggle('cs-mode-grid',m==='grid');galleryLayer.classList.toggle('cs-mode-focus',m==='focus');if(m==='focus')startFocusEngine();else stopFocusEngine();}
+  modeBtn.addEventListener('click',()=>setMode(mode==='grid'?'focus':'grid'));
+  window.addEventListener('resize',()=>{if(mode==='focus')measureFocus();});
+
+  /* detalle: tarjeta elegida (interactiva) */
+  const detailLayer=$('detailLayer'),stage=$('cardStage'),hero=$('detailHero');
+  const REST='rotateX(6deg) rotateY(-14deg)';
+  let current=0;
+  function openDetail(i){current=i;const c=CARDS[i];
+    $('detailEyebrow').textContent=c.eyebrow;
+    $('detailName').textContent=c.name;
+    $('detailSub').textContent='Gratis · '+c.mat;
+    hero.innerHTML=cardFace(c);
+    hero.style.transition='transform .6s var(--ease)';hero.style.transform=REST;
+    detailLayer.classList.add('open');}
+  $('detailBack').addEventListener('click',()=>detailLayer.classList.remove('open'));
+
+  /* tocá la tarjeta y se mueve (tilt 3D) */
+  function tilt(e){const r=stage.getBoundingClientRect();const px=(e.clientX-r.left)/r.width-0.5,py=(e.clientY-r.top)/r.height-0.5;const ry=Math.max(-42,Math.min(42,px*62)),rx=Math.max(-34,Math.min(34,-py*46));hero.style.transition='none';hero.style.transform='rotateX('+rx+'deg) rotateY('+ry+'deg)';}
+  function untilt(){hero.style.transition='transform .6s var(--ease)';hero.style.transform=REST;}
+  stage.addEventListener('pointerdown',e=>{tilt(e);try{stage.setPointerCapture(e.pointerId);}catch(_){}});
+  stage.addEventListener('pointermove',tilt);
+  stage.addEventListener('pointerup',untilt);
+  stage.addEventListener('pointerleave',untilt);
+  stage.addEventListener('pointercancel',untilt);
+
+  /* toast + CTA único */
+  const toast=$('toast');let tt;
+  function showToast(m){$('toastMsg').textContent=m;toast.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>toast.classList.remove('show'),2200);}
+  $('btnContinue').addEventListener('click',()=>{showToast('Elegiste la '+CARDS[current].name);setTimeout(()=>{studio.classList.remove('open');leave();},1100);});
+
+  /* cerrar/reiniciar el studio -> volver a la grilla */
+  function leave(){setMode('grid');detailLayer.classList.remove('open');}
+  $('studioClose').addEventListener('click',()=>{studio.classList.remove('open');leave();});
+  $('reset').addEventListener('click',()=>{studio.classList.remove('open');leave();});
+
+  setMode('grid');
+})();
 </script>
 </body>
 </html>
